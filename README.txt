@@ -17,9 +17,13 @@ Profile images for GroupServer Users
 Introduction
 ============
 
-This product supplies the core code for displaying profile images. It
-provides a `content provider`_, a view_, a class_, and a `missing image`_
-resource.
+This product supplies the code for displaying scaled profile images. The
+core scaling is provided by ``gs.image``, while this product provides
+
+* A `content provider`_ to provide a high-level API, 
+* A view_ to display the image at different sizes, 
+* A class_ to map a user to an image, and 
+* The `missing image`_ resource that is shown if the image cannot be found.
 
 Content Provider
 ================
@@ -32,8 +36,9 @@ code that needs to display a profile image::
 
 It returns a ``<div>`` element (with the ``userimage`` and ``photo``
 classes) that contains an ``<img>`` element. The ``src`` attribute of the
-``<img>`` element points to the `view`_. The size of the image defaults to
-54×72 pixels [#units]_ with the ``width`` and ``height`` attributes of the
+``<img>`` element points to the `view`_, if the user has a profile image,
+or the `missing image`_ resource. The size of the image defaults to 50×70
+pixels [#units]_ with the ``width`` and ``height`` attributes of the
 ``<img>`` element set.
 
 Two optional arguments can be passed to the content provider to change the
@@ -49,28 +54,24 @@ View
 ====
 
 The view ``/p/{userId}/gs-profile-image`` is a view that returns the image
-for the user. The ``gs-profile-image`` view provides an **API** for
-resizing the profile image [#api]_. Two optional arguments can be passed as
-part of a path.
+for the user. The ``gs-profile-image`` view provides an **API** for viewing
+the profile image at different sizes [#api]_. Two optional arguments can be
+passed as part of a path, to set the width and the height of the image.
 
 * Not providing any arguments displays the image that the participant
-  originally uploaded::
+  originally uploaded: <http://groupserver.org/p/mpj17/gs-profile-image>.
 
-    /p/mpj17/gs-profile-image
-
-* If only the *width* is supplied the height will be calculated, keeping
+* If only the **width** is supplied the height will be calculated, keeping
   the same aspect ratio as the original image. A new image will be returned
-  that is scaled as requested. For example, setting the width to 100px::
+  that is scaled as requested. For example, setting the width to 100px:
+  <http://groupserver.org/p/mpj17/gs-profile-image/100>.
 
-    /p/mpj17/gs-profile-image/100
-
-* The *height* is specified after the width. The image will be scaled so
+* The **height** is specified after the width. The image will be scaled so
   neither the width nor the height will be exceeded. However, the *aspect
   ratio* will be preserved, so one dimension may be smaller than requested
   [#resize]_. For example, ensuring that the width does not exceed 100px,
-  and the height is smaller than to 125px::
-
-    /p/mpj17/gs-profile-image/100/125
+  and the height is smaller than to 125px:
+  <http://groupserver.org/p/mpj17/gs-profile-image/100/125>.
 
 The scaling of the image is carried out by the ``UserImage`` class_.  If
 the participant lacks an image then the viewer is redirected to the
@@ -121,17 +122,15 @@ Resources
 .. _Creative Commons Attribution-Share Alike 3.0 New Zealand License:
    http://creativecommons.org/licenses/by-sa/3.0/nz/
 
-.. [#units] 54×72 pixels is 3×4 units in the standard `GroupServer CSS`_.
+.. [#units] 50×70 pixels is 2.5×3.5 units in the standard `GroupServer
+            CSS`_.
 .. _GroupServer CSS: https://source.iopen.net/groupserver/gs.content.css
 
 .. [#api] The API is the same as the images supported by
           ``Products.XWFFileLibrary2``.
 
-.. [#resize] The algorithm for resizing the profile image is carried out by
-             ``gs.image``. It is based on `code by a Kevin`_ on the
-             Image-SIG list.
-.. _code by a Kevin:
-   http://mail.python.org/pipermail/image-sig/2006-January/003724.html
+.. [#resize] See ``gs.image`` for details on resizing
+             <https://source.iopen.net/groupserver/gs.image>
 
 .. [#glob] See `the glob module`_.
 .. _the glob module: http://docs.python.org/2.7/library/glob.html
