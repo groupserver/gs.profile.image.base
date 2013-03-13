@@ -61,6 +61,9 @@ class Image(ProfilePage):
 
             self.request.RESPONSE.setHeader('Content-Type',
                                             self.image.contentType)
+
+            self.request.RESPONSE.setHeader('Content-Length',
+                                            self.image.getSize())
             retval = self.image.data
         except IOError:
             missingImage = '/++resource++gs-profile-image-base-missing.jpg'
