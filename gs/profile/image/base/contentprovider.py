@@ -1,4 +1,5 @@
 # coding=utf-8
+from base64 import b64encode
 from zope.cachedescriptors.property import Lazy
 from zope.contentprovider.interfaces import UpdateNotCalled
 from zope.pagetemplate.pagetemplatefile import PageTemplateFile
@@ -35,15 +36,33 @@ class UserImageContentProvider(SiteContentProvider):
         return retval
 
     @Lazy
+    def size(self):
+        return [int(d) for d in (self.width, self.height)]
+
+    @Lazy
     def userImageUrl(self):
-        retval = self.missingImage
+        retval = self.missingImage  # From the interface
         try:
             if (not(self.userInfo.anonymous) and self.userImage.imagePath):
-                r = '{profile}/gs-profile-image/{width}/{height}'
-                retval = r.format(profile=self.userInfo.url, width=self.width,
-                                    height=self.height)
+                if max(self.size) >= 40:
+                    retval = self.profile_image_link()
+                else:
+                    retval = self.embedded_profile_image()
         except IOError:
             pass  # Use the missingImage
+        return retval
+
+    def profile_image_link(self):
+        r = '{profile}/gs-profile-image/{width}/{height}'
+        retval = r.format(profile=self.userInfo.url, width=self.width,
+                            height=self.height)
+        return retval
+
+    def embedded_profile_image(self):
+        smallImage = self.userImage.get_resized(self.width, self.height)
+        d = b64encode(smallImage.data)
+        r = 'data:{mediatype};base64,{data}'
+        retval = r.format(mediatype=smallImage.contentType, data=d)
         return retval
 
     @Lazy
