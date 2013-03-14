@@ -39,7 +39,10 @@ classes) that contains an ``<img>`` element. The ``src`` attribute of the
 ``<img>`` element points to the `view`_, if the user has a profile image,
 or the `missing image`_ resource. The size of the image defaults to 50×70
 pixels [#units]_ with the ``width`` and ``height`` attributes of the
-``<img>`` element set.
+``<img>`` element set. However, if the longest length of the image is less
+that 40 pixels then a `data URI`_ is used to embed the profile image in the
+page, rather than using a normal URL.
+
 
 Two optional arguments can be passed to the content provider to change the
 size: ``width`` and ``height``. While the size of the image will be changed,
@@ -49,7 +52,6 @@ the aspect ratio of the image is preserved (see View_ below)::
                    width string:14; height string:18;"
        tal:replace="structure provider:groupserver.UserImage" />
 
-
 View
 ====
 
@@ -58,12 +60,13 @@ for the user. The ``gs-profile-image`` view provides an **API** for viewing
 the profile image at different sizes [#api]_. Two optional arguments can be
 passed as part of a path, to set the width and the height of the image.
 
-* Not providing any arguments displays the image that the participant
-  originally uploaded: <http://groupserver.org/p/mpj17/gs-profile-image>.
+* Not providing any arguments displays the **original** image that the
+  participant uploaded: <http://groupserver.org/p/mpj17/gs-profile-image>.
 
-* If only the **width** is supplied the height will be calculated, keeping
-  the same aspect ratio as the original image. A new image will be returned
-  that is scaled as requested. For example, setting the width to 100px:
+* If only one argument is provided, the **width** is set and the height
+  will be calculated, keeping the same aspect ratio as the original
+  image. A new image will be returned that is scaled as requested. For
+  example, setting the width to 100px:
   <http://groupserver.org/p/mpj17/gs-profile-image/100>.
 
 * The **height** is specified after the width. The image will be scaled so
@@ -126,6 +129,7 @@ Resources
             CSS`_.
 .. _GroupServer CSS: https://source.iopen.net/groupserver/gs.content.css
 
+.. _data URI: http://tools.ietf.org/html/rfc2397
 .. [#api] The API is the same as the images supported by
           ``Products.XWFFileLibrary2``.
 
