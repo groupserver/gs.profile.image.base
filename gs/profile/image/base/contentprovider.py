@@ -36,15 +36,16 @@ class UserImageContentProvider(SiteContentProvider):
         return retval
 
     @Lazy
-    def size(self):
+    def s(self):
         return [int(d) for d in (self.width, self.height)]
 
     @Lazy
     def userImageUrl(self):
         retval = self.missingImage  # From the interface
         try:
-            if (not(self.userInfo.anonymous) and self.userImage.imagePath):
-                if max(self.size) >= 40:
+            if (not(self.userInfo.anonymous)
+                and (self.userImage.file is not None)):
+                if max(self.s) >= 40:
                     retval = self.profile_image_link()
                 else:
                     retval = self.embedded_profile_image()
