@@ -2,7 +2,6 @@
 from errno import ENOENT
 from glob import glob
 import os.path
-from zope.cachedescriptors.property import Lazy
 from gs.image import GSImage
 from Products.XWFCore.XWFUtils import locateDataDirectory
 
@@ -16,40 +15,41 @@ class UserImage(GSImage):
         assert userInfo
         self.userInfo = userInfo
 
+        self.file = get_file(context, userInfo)
         super(UserImage, self).__init__(self.file)
 
-    @Lazy
-    def imageDir(self):
-        # TODO: Cache
-        site_root = self.context.site_root()
-        siteId = site_root.getId()
-        retval = locateDataDirectory("groupserver.user.image", (siteId,))
-        return retval
 
-    @Lazy
-    def imagePath(self):
-        # TODO: Cache
-        # --=mpj17=-- Note to Future Coder: version numbers could be added to
-        # the files: something like userId-YYYYMMDDHHMMSS.ext ?
-        # '{0}-[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]'
-        # '[0-9][0-9].*'.format(self.userInfo.id)
-        filename = '{0}.*'.format(self.userInfo.id)
-        imagePath = os.path.join(self.imageDir, filename)
+def get_file(context, userInfo):
+    retval = None
+    imagePath = get_image_path(context, userInfo)
+    if imagePath:
+        retval = file(imagePath, 'rb')
+    return retval
 
-        retval = None
-        files = glob(imagePath)
-        if files and os.path.isfile(files[0]):
-            retval = files[0]
-        else:
-            m = 'Cannot open the profile image for {name} ({id})'
-            msg = m.format(name=self.userInfo.name, id=self.userInfo.id)
-            raise IOError(ENOENT, msg, imagePath)
-        return retval
 
-    @Lazy
-    def file(self):
-        retval = None
+def get_image_path(context, userInfo):
+    # TODO: Cache
+    # --=mpj17=-- Note to Future Coder: version numbers could be added to
+    # the files: something like userId-YYYYMMDDHHMMSS.ext ?
+    # '{0}-[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]'
+    # '[0-9][0-9].*'.format(self.userInfo.id)
+    filename = '{0}.*'.format(userInfo.id)
+    imagePath = os.path.join(get_imageDir(context), filename)
 
-        if self.imagePath:
-            retval = file(self.imagePath, 'rb')
-        return retval
+    retval = None
+    files = glob(imagePath)
+    if files and os.path.isfile(files[0]):
+        retval = files[0]
+    else:
+        m = 'Cannot open the profile image for {name} ({id})'
+        msg = m.format(name=userInfo.name, id=userInfo.id)
+        raise IOError(ENOENT, msg, imagePath)
+    return retval
+
+
+def get_imageDir(context):
+    # TODO: Cache
+    site_root = context.site_root()
+    siteId = site_root.getId()
+    retval = locateDataDirectory("groupserver.user.image", (siteId,))
+    return retval
