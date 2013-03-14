@@ -53,7 +53,8 @@ class Image(ProfilePage):
     def __call__(self):
         # TODO: Add the x-sendfile suff
         try:
-            hdr = 'inline; filename={0}.jpg'.format(self.userInfo.id)
+            h = 'inline; filename={0}-{1}x{2}.jpg'
+            hdr = h.format(self.userInfo.nickname, self.width, self.height)
             self.request.RESPONSE.setHeader('Content-Disposition', hdr)
 
             self.request.RESPONSE.setHeader('Cache-Control',
