@@ -9,19 +9,19 @@ from userimage import UserImage
 
 
 class UserImageContentProvider(SiteContentProvider):
-    """GroupServer view of the user image
-    """
+    """The user image."""
+
     def __init__(self, context, request, view):
         super(UserImageContentProvider, self).__init__(context, request, view)
-        self.__updated = False
+        self.updated = False
         self.pageTemplate = None
 
     def update(self):
-        self.__updated = True
+        self.updated = True
         self.pageTemplate = PageTemplateFile(self.pageTemplateFileName)
 
     def render(self):
-        if not self.__updated:
+        if not self.updated:
             raise UpdateNotCalled
         return self.pageTemplate(view=self)
 
