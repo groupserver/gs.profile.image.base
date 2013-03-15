@@ -9,62 +9,90 @@ from userimage import UserImage
 
 
 class UserImageContentProvider(SiteContentProvider):
-    """The user image."""
 
     def __init__(self, context, request, view):
         super(UserImageContentProvider, self).__init__(context, request, view)
         self.updated = False
-        self.pageTemplate = None
 
     def update(self):
         self.updated = True
         self.pageTemplate = PageTemplateFile(self.pageTemplateFileName)
+        self.finalSize = self.get_final_size()
+        self.finalWidth = self.finalSize[0]
+        self.finalHeight = self.finalSize[1]
+        self.imageUrl = self.get_image_url()
 
     def render(self):
         if not self.updated:
             raise UpdateNotCalled
         return self.pageTemplate(view=self)
 
+    def get_final_size(self):
+        if self.showMissingImage:
+            retval = [int(d) for d in (self.width, self.height)]
+        elif self.resizeNeeded:
+            retval = self.smallImage.getImageSize()
+        else:
+            retval = self.userImage.getImageSize()
+        return retval
+
     @Lazy
-    def userInfo(self):
-        retval = IGSUserInfo(self.user)
+    def showMissingImage(self):
+        try:
+            retval = self.userInfo.anonymous or (self.userImage.file is None)
+        except IOError:
+            retval = True
+        return retval
+
+    @Lazy
+    def resizeNeeded(self):
+        return ((int(self.width) < self.userImage.width) or
+                    (int(self.height) < self.userImage.height))
+
+    @Lazy
+    def smallImage(self):
+        if self.resizeNeeded:
+            retval = self.userImage.get_resized(int(self.width),
+                                                    int(self.height))
+        else:
+            retval = self.userImage
         return retval
 
     @Lazy
     def userImage(self):
-        retval = UserImage(self.context, self.userInfo)
-        return retval
+        return UserImage(self.context, self.userInfo)
 
     @Lazy
-    def s(self):
-        return [int(d) for d in (self.width, self.height)]
+    def userInfo(self):
+        return IGSUserInfo(self.user)
 
-    @Lazy
-    def userImageUrl(self):
+    def get_image_url(self):
         retval = self.missingImage  # From the interface
         try:
-            if (not(self.userInfo.anonymous)
-                and (self.userImage.file is not None)):
-                if max(self.s) >= 40:
-                    retval = self.profile_image_link()
-                else:
+            if not self.showMissingImage:
+                if self.smallImage.getSize() < 1023:
                     retval = self.embedded_profile_image()
+                elif self.resizeNeeded:
+                    retval = self.resize_link()
+                else:
+                    retval = self.profile_image_link()
         except IOError:
             pass  # Use the missingImage
         return retval
 
     def profile_image_link(self):
-        r = '{profile}/gs-profile-image/{width}/{height}'
-        retval = r.format(profile=self.userInfo.url, width=self.width,
-                            height=self.height)
-        return retval
+        r = '{profile}/gs-profile-image'
+        return r.format(profile=self.userInfo.url)
+
+    def resize_link(self):
+        r = '{profileLink}/{width}/{height}'
+        return r.format(profileLink=self.profile_image_link(),
+                            width=self.width, height=self.height)
 
     def embedded_profile_image(self):
-        smallImage = self.userImage.get_resized(self.width, self.height)
-        d = b64encode(smallImage.data)
+        d = b64encode(self.smallImage.data)
         r = 'data:{mediatype};base64,{data}'
-        retval = r.format(mediatype=smallImage.contentType, data=d)
-        return retval
+        return r.format(mediatype=self.smallImage.contentType, data=d)
 
     @Lazy
     def userImageShow(self):
