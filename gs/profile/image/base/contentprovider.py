@@ -1,4 +1,4 @@
-# coding=utf-8
+# -*- coding: utf-8 -*-
 from base64 import b64encode
 from zope.cachedescriptors.property import Lazy
 from zope.contentprovider.interfaces import UpdateNotCalled
