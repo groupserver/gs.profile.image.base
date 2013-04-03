@@ -4,6 +4,7 @@ from zope.cachedescriptors.property import Lazy
 from zope.contentprovider.interfaces import UpdateNotCalled
 from zope.pagetemplate.pagetemplatefile import PageTemplateFile
 from Products.CustomUserFolder.interfaces import IGSUserInfo
+from Products.CustomUserFolder.userinfo import GSAnonymousUserInfo
 from gs.viewlet.contentprovider import SiteContentProvider
 from userimage import UserImage
 
@@ -64,7 +65,11 @@ class UserImageContentProvider(SiteContentProvider):
 
     @Lazy
     def userInfo(self):
-        return IGSUserInfo(self.user)
+        try:
+            retval = IGSUserInfo(self.user)
+        except TypeError:
+            retval = GSAnonymousUserInfo()
+        return retval
 
     def get_image_url(self):
         retval = self.missingImage  # From the interface
