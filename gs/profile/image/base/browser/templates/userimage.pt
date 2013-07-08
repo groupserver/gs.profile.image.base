@@ -1,6 +1,5 @@
 <div class="userimage photo" tal:define="view options/view;">
   <img src="/foo" title="Image of A. Person"
-       tal:condition="view/userImageShow"
        tal:attributes="src string:${view/imageUrl};
                        title string:Image of ${view/userInfo/name};
                        width view/finalWidth;

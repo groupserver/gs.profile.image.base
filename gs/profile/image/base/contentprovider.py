@@ -40,7 +40,8 @@ class UserImageContentProvider(SiteContentProvider):
     @Lazy
     def showMissingImage(self):
         try:
-            retval = self.userInfo.anonymous or (self.userImage.file is None)
+            retval = (self.userInfo.anonymous or (self.userImage.file is None)
+                        or not(getattr(self.user, 'showImage', False)))
         except IOError:
             retval = True
         return retval
@@ -98,10 +99,3 @@ class UserImageContentProvider(SiteContentProvider):
         d = b64encode(self.smallImage.data)
         r = 'data:{mediatype};base64,{data}'
         return r.format(mediatype=self.smallImage.contentType, data=d)
-
-    @Lazy
-    def userImageShow(self):
-        retval = (self.showImageRegardlessOfUserSetting or
-                    getattr(self.user, 'showImage', False))
-        assert type(retval) == bool
-        return retval
