@@ -41,7 +41,7 @@ def get_image_path(context, userInfo):
     if files and os.path.isfile(files[0]):
         retval = files[0]
     else:
-        m = 'Cannot open the profile image for {name} ({id})'
+        m = u'Cannot open the profile image for {name} ({id})'
         msg = m.format(name=userInfo.name, id=userInfo.id)
         raise IOError(ENOENT, msg, imagePath)
     return retval
