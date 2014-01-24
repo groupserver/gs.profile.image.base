@@ -1,4 +1,18 @@
 # -*- coding: utf-8 -*-
+##############################################################################
+#
+# Copyright © 2014 OnlineGroups.net and Contributors.
+# All Rights Reserved.
+#
+# This software is subject to the provisions of the Zope Public License,
+# Version 2.1 (ZPL).  A copy of the ZPL should accompany this distribution.
+# THIS SOFTWARE IS PROVIDED "AS IS" AND ANY AND ALL EXPRESS OR IMPLIED
+# WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
+# FOR A PARTICULAR PURPOSE.
+#
+##############################################################################
+from __future__ import absolute_import
 from base64 import b64encode
 from zope.cachedescriptors.property import Lazy
 from zope.contentprovider.interfaces import UpdateNotCalled
@@ -6,7 +20,7 @@ from zope.pagetemplate.pagetemplatefile import PageTemplateFile
 from Products.CustomUserFolder.interfaces import IGSUserInfo
 from Products.CustomUserFolder.userinfo import GSAnonymousUserInfo
 from gs.viewlet.contentprovider import SiteContentProvider
-from userimage import UserImage
+from .userimage import UserImage
 
 
 class UserImageContentProvider(SiteContentProvider):
