@@ -16,6 +16,9 @@ from __future__ import unicode_literals
 from zope.contentprovider.interfaces import IContentProvider
 from zope.schema import ASCIILine, Bool, Field, Int
 
+# FIXME: use gs.config
+MISSING_IMAGE_URL = '/++resource++gs-profile-image-base-missing.jpg'
+
 
 class IGSUserImage(IContentProvider):
     """User Image"""
@@ -56,4 +59,4 @@ class IGSUserImage(IContentProvider):
         description='The URL of the image to use for the missing-image '
                     'image.',
         required=False,
-        default='/++resource++gs-profile-image-base-missing.jpg')
+        default=MISSING_IMAGE_URL.encode('ascii', 'ignore'))
