@@ -12,8 +12,9 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ##############################################################################
-from __future__ import absolute_import
+from __future__ import absolute_import, unicode_literals
 from zope.cachedescriptors.property import Lazy
+from gs.core import to_ascii
 from gs.profile.base.page import ProfilePage
 from .userimage import UserImage
 
@@ -69,16 +70,17 @@ class Image(ProfilePage):
         try:
             h = 'inline; filename={0}-{1}x{2}.jpg'
             hdr = h.format(self.userInfo.nickname, self.width, self.height)
-            self.request.RESPONSE.setHeader('Content-Disposition', hdr)
+            self.request.RESPONSE.setHeader(to_ascii('Content-Disposition'),
+                                            to_ascii(hdr))
 
-            self.request.RESPONSE.setHeader('Cache-Control',
-                                            'private; max-age=1200')
+            self.request.RESPONSE.setHeader(to_ascii('Cache-Control'),
+                                            to_ascii('private; max-age=1200'))
 
-            self.request.RESPONSE.setHeader('Content-Type',
-                                            self.image.contentType)
+            self.request.RESPONSE.setHeader(to_ascii('Content-Type'),
+                                            to_ascii(self.image.contentType))
 
-            self.request.RESPONSE.setHeader('Content-Length',
-                                            self.image.getSize())
+            self.request.RESPONSE.setHeader(to_ascii('Content-Length'),
+                                            to_ascii(str(self.image.getSize())))
             retval = self.image.data
         except IOError:
             missingImage = '/++resource++gs-profile-image-base-missing.jpg'
