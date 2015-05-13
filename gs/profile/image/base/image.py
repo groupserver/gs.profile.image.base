@@ -78,7 +78,7 @@ class Image(ProfilePage):
                                             b'private; max-age=1200')
 
             self.request.RESPONSE.setHeader(
-                'Content-Type', to_ascii(self.image.contentType))
+                b'Content-Type', to_ascii(self.image.contentType))
 
             self.request.RESPONSE.setHeader(
                 b'Content-Length', to_ascii(str(self.image.getSize())))
