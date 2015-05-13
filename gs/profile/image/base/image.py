@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-##############################################################################
+############################################################################
 #
-# Copyright © 2014 OnlineGroups.net and Contributors.
+# Copyright © 2014, 2015 OnlineGroups.net and Contributors.
 # All Rights Reserved.
 #
 # This software is subject to the provisions of the Zope Public License,
@@ -11,7 +11,7 @@
 # WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
 # FOR A PARTICULAR PURPOSE.
 #
-##############################################################################
+############################################################################
 from __future__ import absolute_import, unicode_literals
 from zope.cachedescriptors.property import Lazy
 from gs.core import to_ascii
@@ -66,23 +66,24 @@ class Image(ProfilePage):
         return retval
 
     def __call__(self):
-        # TODO: Add the x-sendfile suff
+        # TODO: Add uWSGI offloading with X-Sendfile
+        # http://uwsgi-docs.readthedocs.org/en/latest/articles/OffloadingWebsocketsAndSSE.html#uwsgi-offloading
         try:
             h = 'inline; filename={0}-{1}x{2}.jpg'
             hdr = h.format(self.userInfo.nickname, self.width, self.height)
-            self.request.RESPONSE.setHeader(to_ascii('Content-Disposition'),
+            self.request.RESPONSE.setHeader(b'Content-Disposition',
                                             to_ascii(hdr))
 
-            self.request.RESPONSE.setHeader(to_ascii('Cache-Control'),
-                                            to_ascii('private; max-age=1200'))
+            self.request.RESPONSE.setHeader(b'Cache-Control',
+                                            b'private; max-age=1200')
 
-            self.request.RESPONSE.setHeader(to_ascii('Content-Type'),
-                                            to_ascii(self.image.contentType))
+            self.request.RESPONSE.setHeader(
+                'Content-Type', to_ascii(self.image.contentType))
 
-            self.request.RESPONSE.setHeader(to_ascii('Content-Length'),
-                                            to_ascii(str(self.image.getSize())))
+            self.request.RESPONSE.setHeader(
+                b'Content-Length', to_ascii(str(self.image.getSize())))
             retval = self.image.data
         except IOError:
-            missingImage = '/++resource++gs-profile-image-base-missing.jpg'
+            missingImage = b'/++resource++gs-profile-image-base-missing.jpg'
             retval = self.request.RESPONSE.redirect(missingImage)
         return retval
